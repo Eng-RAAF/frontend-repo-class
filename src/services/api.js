@@ -26,17 +26,27 @@ const apiRequest = async (endpoint, options = {}) => {
     if (!response.ok) {
       // Try to parse as JSON, fallback to status text
       let errorMessage = 'Something went wrong';
+      let errorDetails = null;
+      
       try {
         if (text) {
           const error = JSON.parse(text);
           errorMessage = error.error || error.message || errorMessage;
+          errorDetails = error.details; // Include details if available
         } else {
           errorMessage = response.statusText || errorMessage;
         }
       } catch (e) {
         errorMessage = text || response.statusText || errorMessage;
       }
-      throw new Error(errorMessage);
+      
+      // Create error with more context
+      const apiError = new Error(errorMessage);
+      if (errorDetails) {
+        apiError.details = errorDetails;
+      }
+      apiError.status = response.status;
+      throw apiError;
     }
 
     // Parse JSON only if there's content
@@ -144,11 +154,24 @@ export const authAPI = {
       method: 'POST',
       body: JSON.stringify({ phoneNumber, otp })
     }),
-  register: (name, email, password, role, phoneNumber, otp) =>
-    apiRequest('/auth/register', {
-      method: 'POST',
-      body: JSON.stringify({ name, email, password, role, phoneNumber, otp })
-    }),
+  register: async (name, email, password, role, phoneNumber, otp) => {
+    try {
+      console.log('Register API: Calling /auth/register');
+      console.log('Register API: Data:', { name, email, hasPassword: !!password, role, hasPhone: !!phoneNumber, hasOtp: !!otp });
+      const response = await apiRequest('/auth/register', {
+        method: 'POST',
+        body: JSON.stringify({ name, email, password, role, phoneNumber, otp })
+      });
+      console.log('Register API: Success, response received');
+      return response;
+    } catch (error) {
+      console.error('Register API error:', error);
+      console.error('Error message:', error.message);
+      console.error('Error status:', error.status);
+      console.error('Error details:', error.details);
+      throw error;
+    }
+  },
   verify: () => {
     const token = localStorage.getItem('token');
     return apiRequest('/auth/verify', {

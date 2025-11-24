@@ -164,12 +164,13 @@ function Register() {
         navigate('/', { replace: true });
       }, 150);
     } catch (err) {
-      console.error('Registration error:', err);
-      console.error('Error details:', {
-        message: err.message,
-        name: err.name,
-        stack: err.stack
-      });
+      console.error('=== REGISTRATION ERROR ===');
+      console.error('Error:', err);
+      console.error('Error message:', err.message);
+      console.error('Error name:', err.name);
+      console.error('Error stack:', err.stack);
+      console.error('Error details:', err.details);
+      console.error('Error status:', err.status);
       
       // Show more helpful error message
       let errorMessage = err.message || 'Registration failed. Please try again.';
@@ -177,6 +178,16 @@ function Register() {
       // Check if it's a network error
       if (err.message && err.message.includes('Network error')) {
         errorMessage = err.message + '\n\nMake sure:\n• Backend server is running (cd backend && npm run dev)\n• Frontend dev server is running (cd frontend && npm run dev)';
+      }
+      
+      // Check for database errors
+      if (err.message && (err.message.includes('Database') || err.message.includes('connection'))) {
+        errorMessage = err.message + '\n\nPlease check:\n• Database connection is active\n• Backend server logs for details';
+      }
+      
+      // Include error details if available
+      if (err.details) {
+        errorMessage += `\n\nDetails: ${err.details}`;
       }
       
       setError(errorMessage);
