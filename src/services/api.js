@@ -1,5 +1,13 @@
-// Use environment variable for API URL, fallback to '/api' for development
+// API Base URL
+// In development: uses '/api' which is proxied to http://localhost:3000 via vite.config.js
+// In production: uses VITE_API_URL environment variable if set, otherwise '/api'
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+
+// Debug logging (only in development)
+if (import.meta.env.DEV) {
+  console.log('🔧 Development mode - API Base URL:', API_BASE_URL);
+  console.log('🔧 Vite proxy should forward /api to http://localhost:3000');
+}
 
 // Generic API functions
 const apiRequest = async (endpoint, options = {}) => {
