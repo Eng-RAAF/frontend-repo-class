@@ -3,6 +3,8 @@ import { classesAPI, teachersAPI } from '../services/api';
 import Modal from '../components/Modal';
 import Header from '../components/Header';
 
+
+//wwa qaneeco
 function Classes() {
   const [classes, setClasses] = useState([]);
   const [teachers, setTeachers] = useState([]);
