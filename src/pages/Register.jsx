@@ -9,17 +9,10 @@ function Register() {
     email: '',
     password: '',
     confirmPassword: '',
-    phoneNumber: '',
-    otp: '',
     role: 'user'
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [sendingOTP, setSendingOTP] = useState(false);
-  const [otpSent, setOtpSent] = useState(false);
-  const [otpVerified, setOtpVerified] = useState(false);
-  const [verifyingOTP, setVerifyingOTP] = useState(false);
-  const [receivedOTP, setReceivedOTP] = useState('');
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -31,88 +24,6 @@ function Register() {
     setError('');
   };
 
-  const handleSendOTP = async () => {
-    if (!formData.phoneNumber || formData.phoneNumber.trim() === '') {
-      setError('Please enter a phone number');
-      return;
-    }
-
-    setSendingOTP(true);
-    setError('');
-
-    try {
-      console.log('Requesting OTP for:', formData.phoneNumber);
-      const response = await authAPI.sendOTP(formData.phoneNumber);
-      console.log('OTP Response received:', response);
-      
-      setOtpSent(true);
-      
-      // In development mode, OTP is returned in response for testing
-      // In production, it would be sent via SMS
-      if (response && response.otp) {
-        const otpCode = response.otp;
-        console.log('📱 OTP Code:', otpCode);
-        
-        // Store OTP to display in UI
-        setReceivedOTP(otpCode);
-        
-        // Show OTP in a prominent alert
-        try {
-          alert(
-            `🔐 OTP CODE\n\n` +
-            `Your verification code: ${otpCode}\n\n` +
-            `This code is valid for 5 minutes.\n\n` +
-            `(Development Mode - In production this would be sent via SMS)`
-          );
-        } catch (e) {
-          console.log('Alert blocked, OTP is displayed below');
-        }
-        
-        // Try to copy to clipboard automatically
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(otpCode).then(() => {
-            console.log('✅ OTP copied to clipboard');
-          }).catch((err) => {
-            console.log('Could not copy to clipboard:', err);
-          });
-        }
-      } else {
-        // Production mode - OTP sent via SMS
-        console.log('Production mode - OTP sent via SMS');
-        setReceivedOTP(''); // Clear OTP display
-        alert('✅ OTP sent to your phone number! Please check your SMS.');
-      }
-    } catch (err) {
-      console.error('Send OTP error:', err);
-      console.error('Error details:', err);
-      const errorMessage = err.message || 'Failed to send OTP. Please check the browser console for details.';
-      setError(errorMessage);
-      alert(`Error: ${errorMessage}\n\nCheck the browser console (F12) for more details.`);
-    } finally {
-      setSendingOTP(false);
-    }
-  };
-
-  const handleVerifyOTP = async () => {
-    if (!formData.otp) {
-      setError('Please enter the OTP');
-      return;
-    }
-
-    setVerifyingOTP(true);
-    setError('');
-
-    try {
-      await authAPI.verifyOTP(formData.phoneNumber, formData.otp);
-      setOtpVerified(true);
-      setReceivedOTP(''); // Clear OTP display after verification
-      alert('Phone number verified successfully!');
-    } catch (err) {
-      setError(err.message || 'Invalid OTP');
-    } finally {
-      setVerifyingOTP(false);
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -138,17 +49,12 @@ function Register() {
       return;
     }
 
-    // Phone number and OTP verification are both optional
-    // Users can register with phone number without verification if they want
-
     try {
       const response = await authAPI.register(
         formData.name,
         formData.email,
         formData.password,
-        formData.role,
-        formData.phoneNumber,
-        formData.otp
+        formData.role
       );
 
       // Check if response has the expected structure
@@ -247,99 +153,6 @@ function Register() {
                 value={formData.email}
                 onChange={handleChange}
               />
-            </div>
-
-            <div>
-              <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700">
-                Phone Number <span className="text-gray-400 text-xs">(Optional)</span>
-              </label>
-              <div className="mt-1 flex rounded-md shadow-sm">
-                <input
-                  id="phoneNumber"
-                  name="phoneNumber"
-                  type="tel"
-                  autoComplete="tel"
-                  className="flex-1 appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-l-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                  placeholder="+1234567890 (Optional)"
-                  value={formData.phoneNumber}
-                  onChange={handleChange}
-                />
-                <button
-                  type="button"
-                  onClick={handleSendOTP}
-                  disabled={sendingOTP || !formData.phoneNumber || formData.phoneNumber.trim() === ''}
-                  className="inline-flex items-center px-4 py-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-50 text-gray-700 text-sm font-medium hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {sendingOTP ? 'Sending...' : otpSent ? 'Resend OTP' : 'Verify (Optional)'}
-                </button>
-              </div>
-              <p className="mt-1 text-xs text-gray-500">
-                Phone verification is optional. You can register without verifying your phone number.
-              </p>
-              {otpSent && (
-                <div className="mt-2">
-                  {receivedOTP && (
-                    <div className="mb-3 p-3 bg-green-50 border-2 border-green-400 rounded-lg">
-                      <p className="text-xs text-green-700 font-semibold mb-1">
-                        🔐 Your OTP Code (Development Mode):
-                      </p>
-                      <div className="flex items-center justify-between">
-                        <p className="text-2xl font-mono font-bold text-green-800 tracking-widest">
-                          {receivedOTP}
-                        </p>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            navigator.clipboard.writeText(receivedOTP);
-                            alert('OTP copied to clipboard!');
-                          }}
-                          className="px-3 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700"
-                        >
-                          Copy
-                        </button>
-                      </div>
-                      <p className="text-xs text-green-600 mt-1">
-                        Valid for 5 minutes • In production, this would be sent via SMS
-                      </p>
-                    </div>
-                  )}
-                  {!receivedOTP && (
-                    <div className="mb-2 p-2 bg-blue-50 border border-blue-200 rounded">
-                      <p className="text-xs text-blue-700 font-medium">
-                        💡 Check browser console (F12) for OTP or check alert popup
-                      </p>
-                    </div>
-                  )}
-                  <div className="flex gap-2">
-                    <input
-                      id="otp"
-                      name="otp"
-                      type="text"
-                      maxLength="6"
-                      pattern="[0-9]{6}"
-                      inputMode="numeric"
-                      className="flex-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm text-center text-lg font-mono tracking-widest"
-                      placeholder="000000 (Optional)"
-                      value={formData.otp}
-                      onChange={handleChange}
-                    />
-                    <button
-                      type="button"
-                      onClick={handleVerifyOTP}
-                      disabled={verifyingOTP || !formData.otp || formData.otp.length !== 6}
-                      className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {verifyingOTP ? 'Verifying...' : 'Verify (Optional)'}
-                    </button>
-                  </div>
-                  {otpVerified && (
-                    <p className="mt-2 text-sm text-green-600 font-medium">✓ Phone number verified (optional)</p>
-                  )}
-                  {!otpVerified && formData.phoneNumber && (
-                    <p className="mt-2 text-xs text-gray-500">You can register without verifying your phone number</p>
-                  )}
-                </div>
-              )}
             </div>
 
             <div>

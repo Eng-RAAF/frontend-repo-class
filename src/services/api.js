@@ -154,13 +154,13 @@ export const authAPI = {
       method: 'POST',
       body: JSON.stringify({ phoneNumber, otp })
     }),
-  register: async (name, email, password, role, phoneNumber, otp) => {
+  register: async (name, email, password, role) => {
     try {
       console.log('Register API: Calling /auth/register');
-      console.log('Register API: Data:', { name, email, hasPassword: !!password, role, hasPhone: !!phoneNumber, hasOtp: !!otp });
+      console.log('Register API: Data:', { name, email, hasPassword: !!password, role });
       const response = await apiRequest('/auth/register', {
         method: 'POST',
-        body: JSON.stringify({ name, email, password, role, phoneNumber, otp })
+        body: JSON.stringify({ name, email, password, role })
       });
       console.log('Register API: Success, response received');
       return response;

@@ -5,12 +5,7 @@
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
-    "preview": "vite preview",
-    "db:generate": "npx prisma generate",
-    "db:push": "npx prisma db push",
-    "prisma:generate": "npx prisma generate",
-    "prisma:push": "npx prisma db push",
-    "prisma:studio": "npx prisma studio"
+    "preview": "vite preview"
   },
   "dependencies": {
     "react": "^18.2.0",
