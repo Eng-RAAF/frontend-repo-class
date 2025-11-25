@@ -1,16 +1,36 @@
 // API Base URL
 // In development: uses '/api' which is proxied to http://localhost:3000 via vite.config.js
-// In production: uses VITE_API_URL environment variable (MUST be set in Vercel)
-const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '/api' : '');
+// In production: uses VITE_API_URL environment variable + '/api' prefix
+// VITE_API_URL should be your backend base URL (e.g., https://your-backend.onrender.com)
+// We automatically add '/api' to it since all backend routes are under /api
+let API_BASE_URL;
+if (import.meta.env.DEV) {
+  // Development: use proxy
+  API_BASE_URL = '/api';
+} else {
+  // Production: use VITE_API_URL + /api
+  const baseUrl = import.meta.env.VITE_API_URL || '';
+  if (baseUrl) {
+    // Remove trailing slash if present, then add /api
+    API_BASE_URL = baseUrl.replace(/\/$/, '') + '/api';
+  } else {
+    API_BASE_URL = '';
+  }
+}
 
 // Debug logging
 if (import.meta.env.DEV) {
   console.log('🔧 Development mode - API Base URL:', API_BASE_URL);
   console.log('🔧 Vite proxy should forward /api to http://localhost:3000');
 } else {
-  console.log('🔧 Production mode - API Base URL:', API_BASE_URL || 'NOT SET - Please set VITE_API_URL in Vercel');
+  console.log('🔧 Production mode - API Base URL:', API_BASE_URL || 'NOT SET');
   if (!API_BASE_URL) {
-    console.error('❌ VITE_API_URL is not set! Registration will fail in production.');
+    console.error('❌ VITE_API_URL is not set!');
+    console.error('❌ Please set VITE_API_URL environment variable in Render to your backend URL');
+    console.error('❌ Example: https://your-backend.onrender.com');
+    console.error('❌ (Do NOT include /api in the URL - it will be added automatically)');
+  } else {
+    console.log('✅ API Base URL configured:', API_BASE_URL);
   }
 }
 
@@ -67,12 +87,24 @@ const apiRequest = async (endpoint, options = {}) => {
   } catch (error) {
     // Re-throw with more context if it's a network error
     if (error.name === 'TypeError' && (error.message.includes('fetch') || error.message.includes('Failed to fetch'))) {
-      const errorMessage = 'Network error: Could not connect to server.\n\n' +
-        'Please check:\n' +
-        '1. Backend server is running on http://localhost:3000\n' +
-        '2. Frontend dev server is running (npm run dev)\n' +
-        '3. No firewall blocking the connection';
+      const isProduction = !import.meta.env.DEV;
+      let errorMessage = 'Network error: Could not connect to server.\n\n';
+      
+      if (isProduction) {
+        errorMessage += 'Production Mode:\n' +
+          '1. Check that VITE_API_URL is set in Render environment variables\n' +
+          '2. Verify your backend URL is correct (e.g., https://your-backend.onrender.com)\n' +
+          '3. Check that backend is deployed and running\n' +
+          '4. Verify CORS is configured on backend to allow your frontend domain';
+      } else {
+        errorMessage += 'Development Mode:\n' +
+          '1. Backend server is running on http://localhost:3000\n' +
+          '2. Frontend dev server is running (npm run dev)\n' +
+          '3. No firewall blocking the connection';
+      }
+      
       console.error('Network error details:', error);
+      console.error('API_BASE_URL was:', API_BASE_URL);
       throw new Error(errorMessage);
     }
     throw error;
@@ -162,7 +194,14 @@ export const authAPI = {
   register: async (name, email, password, role) => {
     try {
       console.log('Register API: Calling /auth/register');
+      console.log('Register API: Base URL:', API_BASE_URL);
+      console.log('Register API: Full URL:', `${API_BASE_URL}/auth/register`);
       console.log('Register API: Data:', { name, email, hasPassword: !!password, role });
+      
+      if (!API_BASE_URL && !import.meta.env.DEV) {
+        throw new Error('VITE_API_URL is not configured. Please set it in Render environment variables to your backend URL (e.g., https://your-backend.onrender.com)');
+      }
+      
       const response = await apiRequest('/auth/register', {
         method: 'POST',
         body: JSON.stringify({ name, email, password, role })
@@ -174,6 +213,7 @@ export const authAPI = {
       console.error('Error message:', error.message);
       console.error('Error status:', error.status);
       console.error('Error details:', error.details);
+      console.error('API_BASE_URL:', API_BASE_URL);
       throw error;
     }
   },
