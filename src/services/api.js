@@ -1,12 +1,17 @@
 // API Base URL
 // In development: uses '/api' which is proxied to http://localhost:3000 via vite.config.js
-// In production: uses VITE_API_URL environment variable if set, otherwise '/api'
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+// In production: uses VITE_API_URL environment variable (MUST be set in Vercel)
+const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '/api' : '');
 
-// Debug logging (only in development)
+// Debug logging
 if (import.meta.env.DEV) {
   console.log('🔧 Development mode - API Base URL:', API_BASE_URL);
   console.log('🔧 Vite proxy should forward /api to http://localhost:3000');
+} else {
+  console.log('🔧 Production mode - API Base URL:', API_BASE_URL || 'NOT SET - Please set VITE_API_URL in Vercel');
+  if (!API_BASE_URL) {
+    console.error('❌ VITE_API_URL is not set! Registration will fail in production.');
+  }
 }
 
 // Generic API functions
