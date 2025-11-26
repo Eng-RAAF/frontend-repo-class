@@ -4,6 +4,7 @@ import { studentsAPI, classesAPI, teachersAPI, enrollmentsAPI, analyticsAPI } fr
 import Header from '../components/Header';
 
 // Simple Chart Component
+//waa update kii labaad
 const SimpleBarChart = ({ data, labelKey, valueKey, title, color = 'indigo' }) => {
   if (!data || data.length === 0) {
     return (
