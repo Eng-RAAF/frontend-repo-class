@@ -1,7 +1,7 @@
 // API Base URL
 // In development: uses '/api' which is proxied to http://localhost:3000 via vite.config.js
 // In production: uses VITE_API_URL environment variable + '/api' prefix
-// VITE_API_URL should be your backend base URL (e.g., https://your-backend.onrender.com)
+// VITE_API_URL should be your backend base URL (e.g., https://your-backend.vercel.app)
 // We automatically add '/api' to it since all backend routes are under /api
 let API_BASE_URL;
 if (import.meta.env.DEV) {
@@ -26,8 +26,8 @@ if (import.meta.env.DEV) {
   console.log('🔧 Production mode - API Base URL:', API_BASE_URL || 'NOT SET');
   if (!API_BASE_URL) {
     console.error('❌ VITE_API_URL is not set!');
-    console.error('❌ Please set VITE_API_URL environment variable in Render to your backend URL');
-    console.error('❌ Example: https://your-backend.onrender.com');
+    console.error('❌ Please set VITE_API_URL environment variable in Vercel to your backend URL');
+    console.error('❌ Example: https://your-backend.vercel.app');
     console.error('❌ (Do NOT include /api in the URL - it will be added automatically)');
   } else {
     console.log('✅ API Base URL configured:', API_BASE_URL);
@@ -36,8 +36,15 @@ if (import.meta.env.DEV) {
 
 // Generic API functions
 const apiRequest = async (endpoint, options = {}) => {
+  const fullUrl = `${API_BASE_URL}${endpoint}`;
+  
+  // Log the request for debugging
+  if (!import.meta.env.DEV) {
+    console.log('🌐 API Request:', fullUrl);
+  }
+  
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const response = await fetch(fullUrl, {
       headers: {
         'Content-Type': 'application/json',
         ...options.headers,
@@ -90,21 +97,41 @@ const apiRequest = async (endpoint, options = {}) => {
       const isProduction = !import.meta.env.DEV;
       let errorMessage = 'Network error: Could not connect to server.\n\n';
       
+      // Add diagnostic information
+      console.error('❌ Network Error Details:');
+      console.error('   - API Base URL:', API_BASE_URL || 'NOT SET');
+      console.error('   - Full URL attempted:', fullUrl);
+      console.error('   - Endpoint:', endpoint);
+      console.error('   - Error:', error.message);
+      
       if (isProduction) {
-        errorMessage += 'Production Mode:\n' +
-          '1. Check that VITE_API_URL is set in Render environment variables\n' +
-          '2. Verify your backend URL is correct (e.g., https://your-backend.onrender.com)\n' +
-          '3. Check that backend is deployed and running\n' +
-          '4. Verify CORS is configured on backend to allow your frontend domain';
+        if (!API_BASE_URL) {
+          errorMessage += '❌ VITE_API_URL is not set!\n\n' +
+            'To fix this:\n' +
+            '1. Go to your Frontend project in Vercel Dashboard\n' +
+            '2. Navigate to Settings → Environment Variables\n' +
+            '3. Add VITE_API_URL with your backend URL (e.g., https://your-backend.vercel.app)\n' +
+            '4. Make sure to set it for Production, Preview, and Development\n' +
+            '5. Redeploy your frontend after adding the variable\n\n' +
+            'Note: Do NOT include /api in the URL - it is added automatically';
+        } else {
+          errorMessage += 'Production Mode - Connection Failed:\n\n' +
+            '1. Verify VITE_API_URL is correct: ' + (import.meta.env.VITE_API_URL || 'NOT SET') + '\n' +
+            '2. Check that backend is deployed: Visit ' + (import.meta.env.VITE_API_URL || 'your-backend-url') + ' in browser\n' +
+            '3. Check Vercel backend logs: Go to Backend project → Functions → View logs\n' +
+            '4. Verify CORS: Check that FRONTEND_URL is set in backend environment variables\n' +
+            '5. Test backend directly: Try ' + fullUrl + ' in browser or Postman\n\n' +
+            'Current API Base URL: ' + API_BASE_URL;
+        }
       } else {
         errorMessage += 'Development Mode:\n' +
           '1. Backend server is running on http://localhost:3000\n' +
           '2. Frontend dev server is running (npm run dev)\n' +
-          '3. No firewall blocking the connection';
+          '3. No firewall blocking the connection\n' +
+          '4. Check that Vite proxy is configured in vite.config.js';
       }
       
       console.error('Network error details:', error);
-      console.error('API_BASE_URL was:', API_BASE_URL);
       throw new Error(errorMessage);
     }
     throw error;
@@ -199,7 +226,7 @@ export const authAPI = {
       console.log('Register API: Data:', { name, email, hasPassword: !!password, role });
       
       if (!API_BASE_URL && !import.meta.env.DEV) {
-        throw new Error('VITE_API_URL is not configured. Please set it in Render environment variables to your backend URL (e.g., https://your-backend.onrender.com)');
+        throw new Error('VITE_API_URL is not configured. Please set it in Vercel environment variables to your backend URL (e.g., https://your-backend.vercel.app)');
       }
       
       const response = await apiRequest('/auth/register', {
