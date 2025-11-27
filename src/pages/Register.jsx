@@ -77,23 +77,44 @@ function Register() {
       console.error('Error stack:', err.stack);
       console.error('Error details:', err.details);
       console.error('Error status:', err.status);
+      console.error('Error code:', err.code);
+      console.error('Full error object:', JSON.stringify(err, Object.getOwnPropertyNames(err), 2));
       
       // Show more helpful error message
       let errorMessage = err.message || 'Registration failed. Please try again.';
       
       // Check if it's a network error
-      if (err.message && err.message.includes('Network error')) {
-        errorMessage = err.message + '\n\nMake sure:\n• Backend server is running (cd backend && npm run dev)\n• Frontend dev server is running (cd frontend && npm run dev)';
+      if (err.message && (err.message.includes('Network error') || err.message.includes('fetch') || err.message.includes('Failed to fetch'))) {
+        const isProduction = window.location.hostname !== 'localhost';
+        if (isProduction) {
+          errorMessage = 'Cannot connect to server. Please check:\n\n' +
+            '1. Backend is deployed and running on Vercel\n' +
+            '2. VITE_API_URL is set correctly in Vercel environment variables\n' +
+            '3. Check Vercel backend logs for errors\n' +
+            '4. Verify DATABASE_URL is set in backend environment variables';
+        } else {
+          errorMessage = err.message + '\n\nMake sure:\n• Backend server is running (cd backend && npm run dev)\n• Frontend dev server is running (cd frontend && npm run dev)';
+        }
       }
       
       // Check for database errors
-      if (err.message && (err.message.includes('Database') || err.message.includes('connection'))) {
-        errorMessage = err.message + '\n\nPlease check:\n• Database connection is active\n• Backend server logs for details';
+      if (err.message && (err.message.includes('Database') || err.message.includes('connection') || err.message.includes('Prisma'))) {
+        errorMessage = err.message + '\n\nThis is a database connection issue. Please check:\n• Database connection is active\n• DATABASE_URL is set correctly in Vercel\n• Check Vercel backend logs for details';
+      }
+      
+      // Check for validation errors
+      if (err.status === 400 || err.message?.includes('already exists') || err.message?.includes('required')) {
+        errorMessage = err.message || 'Invalid input. Please check your information and try again.';
       }
       
       // Include error details if available
       if (err.details) {
         errorMessage += `\n\nDetails: ${err.details}`;
+      }
+      
+      // Include error code if available
+      if (err.code) {
+        errorMessage += `\n\nError Code: ${err.code}`;
       }
       
       setError(errorMessage);
@@ -117,7 +138,8 @@ function Register() {
         <form className="mt-8 space-y-6 bg-white p-8 rounded-lg shadow-lg" onSubmit={handleSubmit}>
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative" role="alert">
-              <span className="block sm:inline">{error}</span>
+              <div className="font-semibold mb-1">Registration Error:</div>
+              <div className="whitespace-pre-wrap text-sm">{error}</div>
             </div>
           )}
 
