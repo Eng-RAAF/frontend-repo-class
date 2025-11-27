@@ -5,6 +5,8 @@ function Sidebar() {
 
   const navLinks = [
     { path: '/', label: 'Dashboard', icon: '📊' },
+    { path: '/schools', label: 'Schools', icon: '🏫' },
+    { path: '/branches', label: 'Branches', icon: '🏢' },
     { path: '/students', label: 'Students', icon: '👨‍🎓' },
     { path: '/classes', label: 'Classes', icon: '📚' },
     { path: '/teachers', label: 'Teachers', icon: '👨‍🏫' },

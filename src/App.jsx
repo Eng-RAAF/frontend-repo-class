@@ -13,6 +13,8 @@ import Users from './pages/Users';
 import Chat from './pages/Chat';
 import Reports from './pages/Reports';
 import Dashboard from './pages/Dashboard';
+import Schools from './pages/Schools';
+import Branches from './pages/Branches';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -56,6 +58,8 @@ const AppLayout = () => {
           <div className="max-w-7xl mx-auto px-6 py-8">
             <Routes>
               <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/schools" element={<ProtectedRoute><Schools /></ProtectedRoute>} />
+              <Route path="/branches" element={<ProtectedRoute><Branches /></ProtectedRoute>} />
               <Route path="/students" element={<ProtectedRoute><Students /></ProtectedRoute>} />
               <Route path="/classes" element={<ProtectedRoute><Classes /></ProtectedRoute>} />
               <Route path="/teachers" element={<ProtectedRoute><Teachers /></ProtectedRoute>} />

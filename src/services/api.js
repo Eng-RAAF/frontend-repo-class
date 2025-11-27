@@ -287,3 +287,22 @@ export const analyticsAPI = {
   getActivityTimeline: (limit = 20) => apiRequest(`/analytics/activity-timeline?limit=${limit}`),
 };
 
+// Schools API
+export const schoolsAPI = {
+  getAll: () => apiRequest('/schools'),
+  getById: (id) => apiRequest(`/schools/${id}`),
+  create: (data) => apiRequest('/schools', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) => apiRequest(`/schools/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id) => apiRequest(`/schools/${id}`, { method: 'DELETE' }),
+};
+
+// Branches API
+export const branchesAPI = {
+  getAll: () => apiRequest('/branches'),
+  getById: (id) => apiRequest(`/branches/${id}`),
+  getBySchool: (schoolId) => apiRequest(`/branches/school/${schoolId}`),
+  create: (data) => apiRequest('/branches', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) => apiRequest(`/branches/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id) => apiRequest(`/branches/${id}`, { method: 'DELETE' }),
+};
+
