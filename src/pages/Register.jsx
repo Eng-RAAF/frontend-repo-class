@@ -98,8 +98,21 @@ function Register() {
       }
       
       // Check for database errors
-      if (err.message && (err.message.includes('Database') || err.message.includes('connection') || err.message.includes('Prisma'))) {
-        errorMessage = err.message + '\n\nThis is a database connection issue. Please check:\n• Database connection is active\n• DATABASE_URL is set correctly in Vercel\n• Check Vercel backend logs for details';
+      if (err.message && (err.message.includes('Database') || err.message.includes('connection') || err.message.includes('Prisma') || err.message.includes('Tenant or user not found'))) {
+        if (err.message.includes('Tenant or user not found') || err.details?.includes('Invalid DATABASE_URL')) {
+          errorMessage = 'Database Connection Error: Invalid DATABASE_URL\n\n' +
+            'The Supabase connection string in Vercel is incorrect.\n\n' +
+            'To fix:\n' +
+            '1. Go to Supabase Dashboard → Your Project → Settings → Database\n' +
+            '2. Copy the "Connection string" (use "Direct connection" with port 6543)\n' +
+            '3. Replace [YOUR-PASSWORD] with your actual database password\n' +
+            '4. Update DATABASE_URL in Vercel Backend → Settings → Environment Variables\n' +
+            '5. Format: postgresql://postgres.[PROJECT-REF]:[PASSWORD]@[HOST]:6543/postgres\n' +
+            '6. Redeploy the backend\n\n' +
+            'This error means the project reference, password, or host is wrong.';
+        } else {
+          errorMessage = err.message + '\n\nThis is a database connection issue. Please check:\n• Database connection is active\n• DATABASE_URL is set correctly in Vercel\n• Check Vercel backend logs for details';
+        }
       }
       
       // Check for validation errors
