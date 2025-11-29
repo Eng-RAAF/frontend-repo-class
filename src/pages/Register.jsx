@@ -9,7 +9,7 @@ function Register() {
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'user'
+    role: 'student'
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -250,7 +250,7 @@ function Register() {
                 value={formData.role}
                 onChange={handleChange}
               >
-                <option value="user">User</option>
+                <option value="student">Student</option>
                 <option value="admin">Admin</option>
               </select>
             </div>
