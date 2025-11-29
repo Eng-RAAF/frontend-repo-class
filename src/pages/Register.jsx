@@ -98,8 +98,22 @@ function Register() {
       }
       
       // Check for database errors
-      if (err.message && (err.message.includes('Database') || err.message.includes('connection') || err.message.includes('Prisma') || err.message.includes('Tenant or user not found'))) {
-        if (err.message.includes('Tenant or user not found') || err.details?.includes('Invalid DATABASE_URL')) {
+      if (err.message && (err.message.includes('Database') || err.message.includes('connection') || err.message.includes('Prisma') || err.message.includes('DATABASE_URL') || err.message.includes('Tenant or user not found'))) {
+        if (err.message.includes('DATABASE_URL') || err.message.includes('must start with the protocol') || err.message.includes('postgresql://')) {
+          errorMessage = 'Database Configuration Error: DATABASE_URL Missing or Invalid\n\n' +
+            'The DATABASE_URL environment variable is not set correctly in Vercel.\n\n' +
+            'To fix:\n' +
+            '1. Go to Vercel Dashboard → Your Backend Project → Settings → Environment Variables\n' +
+            '2. Check if DATABASE_URL exists (if not, add it)\n' +
+            '3. DATABASE_URL must start with "postgresql://" or "postgres://"\n' +
+            '4. Get connection string from Supabase Dashboard → Settings → Database\n' +
+            '5. Use "Direct connection" (port 6543) - recommended\n' +
+            '6. Format: postgresql://postgres.[PROJECT-REF]:[PASSWORD]@[HOST]:6543/postgres\n' +
+            '7. Replace [YOUR-PASSWORD] with your actual database password\n' +
+            '8. Make sure it\'s set for Production, Preview, and Development\n' +
+            '9. Redeploy the backend after updating\n\n' +
+            'This error means DATABASE_URL is missing, empty, or has invalid format.';
+        } else if (err.message.includes('Tenant or user not found') || err.details?.includes('Invalid DATABASE_URL')) {
           errorMessage = 'Database Connection Error: Invalid DATABASE_URL\n\n' +
             'The Supabase connection string in Vercel is incorrect.\n\n' +
             'To fix:\n' +
