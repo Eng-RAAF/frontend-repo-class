@@ -251,7 +251,7 @@ function Register() {
                 onChange={handleChange}
               >
                 <option value="student">Student</option>
-                <option value="admin">Admin</option>
+                <option value="teacher">Teacher</option>
               </select>
             </div>
           </div>
