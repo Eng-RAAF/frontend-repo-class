@@ -106,24 +106,22 @@ function Register() {
             '1. Go to Vercel Dashboard → Your Backend Project → Settings → Environment Variables\n' +
             '2. Check if DATABASE_URL exists (if not, add it)\n' +
             '3. DATABASE_URL must start with "postgresql://" or "postgres://"\n' +
-            '4. Get connection string from Supabase Dashboard → Settings → Database\n' +
-            '5. Use "Direct connection" (port 6543) - recommended\n' +
-            '6. Format: postgresql://postgres.[PROJECT-REF]:[PASSWORD]@[HOST]:6543/postgres\n' +
-            '7. Replace [YOUR-PASSWORD] with your actual database password\n' +
+            '4. Get connection string from your database provider dashboard\n' +
+            '5. Format: postgresql://user:password@host:port/database\n' +
+            '6. Make sure all credentials are correct\n' +
             '8. Make sure it\'s set for Production, Preview, and Development\n' +
             '9. Redeploy the backend after updating\n\n' +
             'This error means DATABASE_URL is missing, empty, or has invalid format.';
         } else if (err.message.includes('Tenant or user not found') || err.details?.includes('Invalid DATABASE_URL')) {
           errorMessage = 'Database Connection Error: Invalid DATABASE_URL\n\n' +
-            'The Supabase connection string in Vercel is incorrect.\n\n' +
+            'The database connection string in Vercel is incorrect.\n\n' +
             'To fix:\n' +
-            '1. Go to Supabase Dashboard → Your Project → Settings → Database\n' +
-            '2. Copy the "Connection string" (use "Direct connection" with port 6543)\n' +
-            '3. Replace [YOUR-PASSWORD] with your actual database password\n' +
-            '4. Update DATABASE_URL in Vercel Backend → Settings → Environment Variables\n' +
-            '5. Format: postgresql://postgres.[PROJECT-REF]:[PASSWORD]@[HOST]:6543/postgres\n' +
-            '6. Redeploy the backend\n\n' +
-            'This error means the project reference, password, or host is wrong.';
+            '1. Get your PostgreSQL connection string from your database provider\n' +
+            '2. Format: postgresql://user:password@host:port/database\n' +
+            '3. Update DATABASE_URL in Vercel Backend → Settings → Environment Variables\n' +
+            '4. Make sure username, password, host, and database name are correct\n' +
+            '5. Redeploy the backend\n\n' +
+            'This error means the credentials or connection details are incorrect.';
         } else {
           errorMessage = err.message + '\n\nThis is a database connection issue. Please check:\n• Database connection is active\n• DATABASE_URL is set correctly in Vercel\n• Check Vercel backend logs for details';
         }
