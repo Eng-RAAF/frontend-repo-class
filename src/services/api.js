@@ -38,6 +38,9 @@ if (import.meta.env.DEV) {
 const apiRequest = async (endpoint, options = {}) => {
   const fullUrl = `${API_BASE_URL}${endpoint}`;
   
+  // Get token from localStorage
+  const token = localStorage.getItem('token');
+  
   // Log the request for debugging
   if (!import.meta.env.DEV) {
     console.log('🌐 API Request:', fullUrl);
@@ -47,6 +50,7 @@ const apiRequest = async (endpoint, options = {}) => {
     const response = await fetch(fullUrl, {
       headers: {
         'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` }),
         ...options.headers,
       },
       ...options,
