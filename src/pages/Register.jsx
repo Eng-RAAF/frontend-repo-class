@@ -31,7 +31,7 @@ function Register() {
     setLoading(true);
 
     // Validation
-    //register
+    //qurux
     if (!formData.name || !formData.email || !formData.password) {
       setError('Name, email, and password are required');
       setLoading(false);
