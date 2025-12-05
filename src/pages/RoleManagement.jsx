@@ -184,7 +184,7 @@ function RoleManagement() {
       )}
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
         <div className="bg-white rounded-lg shadow p-4">
           <div className="text-sm text-gray-600">Total Users</div>
           <div className="text-2xl font-bold text-gray-900">{roleCounts.all}</div>
@@ -237,7 +237,84 @@ function RoleManagement() {
 
       {/* Users Table */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="overflow-x-auto">
+        {/* Mobile Card View */}
+        <div className="lg:hidden divide-y divide-gray-200">
+          {filteredUsers.length === 0 ? (
+            <div className="px-4 py-8 text-center text-gray-500">No users found</div>
+          ) : (
+            filteredUsers.map((u) => (
+              <div key={u.id} className="p-4 hover:bg-gray-50">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <h3 className="text-sm font-medium text-gray-900 truncate">{u.name || 'N/A'}</h3>
+                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getRoleBadgeColor(u.role)}`}>
+                        {getRoleDisplayName(u.role)}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600 truncate">{u.email}</p>
+                    {u.phoneNumber && (
+                      <p className="text-xs text-gray-500 mt-1">{u.phoneNumber}</p>
+                    )}
+                  </div>
+                </div>
+                <div className="mt-3 flex items-center gap-2">
+                  {isSuperAdmin(user) && (
+                    <button
+                      onClick={() => startEditing(u)}
+                      className="text-sm text-indigo-600 hover:text-indigo-900"
+                      disabled={u.id === user.id && u.role === 'superadmin'}
+                    >
+                      Change Role
+                    </button>
+                  )}
+                  {isSuperAdmin(user) && u.id !== user.id && (
+                    <button
+                      onClick={() => handleDeleteUser(u.id)}
+                      className={`text-sm text-red-600 hover:text-red-900 ${u.role === 'superadmin' ? 'font-bold' : ''}`}
+                    >
+                      {u.role === 'superadmin' ? '⚠️ Delete' : 'Delete'}
+                    </button>
+                  )}
+                  {!isSuperAdmin(user) && (
+                    <span className="text-sm text-gray-400">View only</span>
+                  )}
+                </div>
+                {editingUser === u.id && (
+                  <div className="mt-3 flex flex-col gap-2">
+                    <select
+                      value={newRole}
+                      onChange={(e) => setNewRole(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                    >
+                      <option value="superadmin">Super Admin</option>
+                      <option value="admin">Admin</option>
+                      <option value="teacher">Teacher</option>
+                      <option value="student">Student</option>
+                    </select>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleRoleChange(u.id, newRole)}
+                        className="flex-1 px-3 py-2 bg-indigo-600 text-white rounded text-sm hover:bg-indigo-700"
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={cancelEditing}
+                        className="flex-1 px-3 py-2 bg-gray-300 text-gray-700 rounded text-sm hover:bg-gray-400"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Desktop Table View */}
+        <div className="hidden lg:block overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>

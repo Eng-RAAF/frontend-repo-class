@@ -23,10 +23,10 @@ function Navbar() {
   };
 
   return (
-    <nav className="fixed top-0 right-0 z-30 h-16 w-[calc(100%-16rem)] bg-white shadow-md border-b border-gray-200">
-      <div className="flex h-full items-center justify-between px-6">
-        {/* Search Bar */}
-        <div className="flex-1 max-w-md">
+    <nav className="fixed top-0 right-0 z-30 h-16 w-full lg:w-[calc(100%-16rem)] bg-white shadow-md border-b border-gray-200">
+      <div className="flex h-full items-center justify-between px-4 sm:px-6">
+        {/* Search Bar - Hidden on mobile */}
+        <div className="hidden md:flex flex-1 max-w-md">
           <div className="relative">
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
               <svg
@@ -51,8 +51,13 @@ function Navbar() {
           </div>
         </div>
 
+        {/* Mobile Title - Only visible on mobile */}
+        <div className="md:hidden flex-1">
+          <h1 className="text-lg font-bold text-gray-900">ClassManager</h1>
+        </div>
+
         {/* Right Side Actions */}
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2 sm:space-x-4">
           {/* Notifications */}
           <button className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
             <svg
@@ -80,9 +85,9 @@ function Navbar() {
               <div className="h-8 w-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-semibold">
                 {getInitials(user?.name)}
               </div>
-              <div className="hidden md:block text-left">
+              <div className="hidden sm:block text-left">
                 <p className="text-sm font-medium text-gray-900">{user?.name || 'User'}</p>
-                <p className="text-xs text-gray-500">{user?.email || ''}</p>
+                <p className="text-xs text-gray-500 hidden md:block">{user?.email || ''}</p>
               </div>
               <svg
                 className={`w-4 h-4 text-gray-500 transition-transform ${
