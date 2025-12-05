@@ -310,3 +310,24 @@ export const branchesAPI = {
   delete: (id) => apiRequest(`/branches/${id}`, { method: 'DELETE' }),
 };
 
+// Super Admin API
+export const superadminAPI = {
+  getAllUsers: () => apiRequest('/superadmin/users/all'),
+  getAllAdmins: () => apiRequest('/superadmin/admins'),
+  getSystemStats: () => apiRequest('/superadmin/system/stats'),
+  changeUserRole: (userId, role) => apiRequest(`/superadmin/users/${userId}/role`, {
+    method: 'PUT',
+    body: JSON.stringify({ role })
+  }),
+  promoteToAdmin: (userId) => apiRequest(`/superadmin/users/${userId}/promote-admin`, {
+    method: 'POST'
+  }),
+  demoteUser: (userId, role) => apiRequest(`/superadmin/users/${userId}/demote`, {
+    method: 'POST',
+    body: JSON.stringify({ role })
+  }),
+  deleteUser: (userId) => apiRequest(`/superadmin/users/${userId}`, {
+    method: 'DELETE'
+  }),
+};
+

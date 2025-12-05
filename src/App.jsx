@@ -15,6 +15,7 @@ import Reports from './pages/Reports';
 import Dashboard from './pages/Dashboard';
 import Schools from './pages/Schools';
 import Branches from './pages/Branches';
+import RoleManagement from './pages/RoleManagement';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -65,6 +66,7 @@ const AppLayout = () => {
               <Route path="/teachers" element={<ProtectedRoute><Teachers /></ProtectedRoute>} />
               <Route path="/enrollments" element={<ProtectedRoute><Enrollments /></ProtectedRoute>} />
               <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
+              <Route path="/role-management" element={<ProtectedRoute><RoleManagement /></ProtectedRoute>} />
               <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
               <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
             </Routes>

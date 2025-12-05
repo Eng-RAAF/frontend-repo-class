@@ -1,7 +1,10 @@
 import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { isSuperAdmin } from '../utils/roleHelper';
 
 function Sidebar() {
   const location = useLocation();
+  const { user } = useAuth();
 
   const navLinks = [
     { path: '/', label: 'Dashboard', icon: '📊' },
@@ -15,6 +18,11 @@ function Sidebar() {
     { path: '/chat', label: 'Messages', icon: '💬' },
     { path: '/reports', label: 'Reports', icon: '📈' },
   ];
+
+  // Add role management link for superadmins only
+  if (user && isSuperAdmin(user)) {
+    navLinks.push({ path: '/role-management', label: 'Role Management', icon: '👑' });
+  }
 
   return (
     <aside className="fixed left-0 top-0 z-40 h-screen w-64 bg-gradient-to-b from-indigo-900 to-indigo-800 shadow-xl transition-transform">
