@@ -32,6 +32,7 @@ function Register() {
 
     // Validation
     //qurux
+    //gulxandaad
     if (!formData.name || !formData.email || !formData.password) {
       setError('Name, email, and password are required');
       setLoading(false);
