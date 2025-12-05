@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { superadminAPI } from '../services/api';
-import { isSuperAdmin, getRoleBadgeColor, getRoleDisplayName } from '../utils/roleHelper';
+import { isSuperAdmin, isAdmin, isTeacherOrAdmin, getRoleBadgeColor, getRoleDisplayName } from '../utils/roleHelper';
 import Header from '../components/Header';
 
 function RoleManagement() {
@@ -15,17 +15,17 @@ function RoleManagement() {
   const [filterRole, setFilterRole] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Check if user is super admin
+  // Check if user has access (Super Admin, Admin, or Teacher)
   useEffect(() => {
-    if (user && !isSuperAdmin(user)) {
-      setError('Access denied. Only Super Administrators can manage roles.');
+    if (user && !isTeacherOrAdmin(user)) {
+      setError('Access denied. Only Super Administrators, Admins, and Teachers can access role management.');
       setLoading(false);
     }
   }, [user]);
 
-  // Fetch all users
+  // Fetch all users (filtered by role)
   useEffect(() => {
-    if (user && isSuperAdmin(user)) {
+    if (user && isTeacherOrAdmin(user)) {
       fetchUsers();
     }
   }, [user]);
@@ -49,17 +49,25 @@ function RoleManagement() {
       setError(null);
       setSuccess(null);
 
-      // Prevent changing own role
+      // Only Super Admins can change roles
+      if (!isSuperAdmin(user)) {
+        setError('Only Super Administrators can change user roles.');
+        return;
+      }
+
+      // Prevent changing own role (but allow managing other superadmins)
       if (userId === user.id && role !== 'superadmin') {
         setError('You cannot change your own role. Super Admins cannot demote themselves.');
         return;
       }
 
-      // Prevent changing another superadmin's role
+      // Allow changing other superadmin roles - show warning for confirmation
       const targetUser = users.find(u => u.id === userId);
       if (targetUser && targetUser.role === 'superadmin' && userId !== user.id) {
-        setError('You cannot change another Super Admin\'s role.');
-        return;
+        const confirmMessage = `Warning: You are about to change another Super Admin's role from "${getRoleDisplayName(targetUser.role)}" to "${getRoleDisplayName(role)}". This will affect their system access. Continue?`;
+        if (!window.confirm(confirmMessage)) {
+          return;
+        }
       }
 
       await superadminAPI.changeUserRole(userId, role);
@@ -82,17 +90,25 @@ function RoleManagement() {
       setError(null);
       setSuccess(null);
 
-      // Prevent deleting yourself
+      // Only Super Admins can delete users
+      if (!isSuperAdmin(user)) {
+        setError('Only Super Administrators can delete users.');
+        return;
+      }
+
+      // Prevent deleting yourself (but allow deleting other superadmins)
       if (userId === user.id) {
         setError('You cannot delete your own account.');
         return;
       }
 
-      // Prevent deleting another superadmin
+      // Allow deleting other superadmins - show strong warning
       const targetUser = users.find(u => u.id === userId);
       if (targetUser && targetUser.role === 'superadmin') {
-        setError('You cannot delete another Super Admin.');
-        return;
+        const confirmMessage = `⚠️ WARNING: You are about to DELETE another Super Administrator (${targetUser.name || targetUser.email}). This is a critical action that cannot be undone. Are you absolutely sure?`;
+        if (!window.confirm(confirmMessage)) {
+          return;
+        }
       }
 
       await superadminAPI.deleteUser(userId);
@@ -132,12 +148,12 @@ function RoleManagement() {
     student: users.filter(u => u.role === 'student').length,
   };
 
-  if (!user || !isSuperAdmin(user)) {
+  if (!user || !isTeacherOrAdmin(user)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-red-600 mb-4">Access Denied</h1>
-          <p className="text-gray-600">Only Super Administrators can access this page.</p>
+          <p className="text-gray-600">Only Super Administrators, Admins, and Teachers can access this page.</p>
         </div>
       </div>
     );
@@ -291,21 +307,27 @@ function RoleManagement() {
                         </div>
                       ) : (
                         <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => startEditing(u)}
-                            className="text-indigo-600 hover:text-indigo-900"
-                            disabled={u.id === user.id && u.role === 'superadmin'}
-                            title={u.id === user.id && u.role === 'superadmin' ? 'Cannot change your own role' : 'Change role'}
-                          >
-                            Change Role
-                          </button>
-                          {u.id !== user.id && u.role !== 'superadmin' && (
+                          {isSuperAdmin(user) && (
+                            <button
+                              onClick={() => startEditing(u)}
+                              className="text-indigo-600 hover:text-indigo-900"
+                              disabled={u.id === user.id && u.role === 'superadmin'}
+                              title={u.id === user.id && u.role === 'superadmin' ? 'Cannot change your own role' : 'Change role'}
+                            >
+                              Change Role
+                            </button>
+                          )}
+                          {isSuperAdmin(user) && u.id !== user.id && (
                             <button
                               onClick={() => handleDeleteUser(u.id)}
-                              className="text-red-600 hover:text-red-900"
+                              className={`text-red-600 hover:text-red-900 ${u.role === 'superadmin' ? 'font-bold' : ''}`}
+                              title={u.role === 'superadmin' ? 'Delete Super Admin (requires confirmation)' : 'Delete user'}
                             >
-                              Delete
+                              {u.role === 'superadmin' ? '⚠️ Delete' : 'Delete'}
                             </button>
+                          )}
+                          {!isSuperAdmin(user) && (
+                            <span className="text-gray-400 text-sm">View only</span>
                           )}
                         </div>
                       )}
@@ -322,13 +344,34 @@ function RoleManagement() {
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <h3 className="text-sm font-semibold text-blue-900 mb-2">Role Management Guidelines</h3>
         <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
-          <li>Super Admins have full system access and can manage all roles</li>
-          <li>Admins can manage students, teachers, classes, and enrollments</li>
-          <li>Teachers can view students and manage enrollments</li>
-          <li>Students have read-only access to their own data</li>
+          <li><strong>Super Admins:</strong> Can see and manage ALL users (including other Super Admins)</li>
+          <li><strong>Admins:</strong> Can see and manage Teachers and Students only</li>
+          <li><strong>Teachers:</strong> Can see Students only</li>
+          <li><strong>Students:</strong> Cannot access role management</li>
+          <li className="mt-2 font-semibold">⚠️ Important:</li>
           <li>You cannot change your own role or delete your own account</li>
-          <li>You cannot change or delete another Super Admin's role</li>
+          <li>Super Admins can now edit and delete other Super Admins (with confirmation)</li>
+          <li>Changing a Super Admin's role will affect their system access immediately</li>
         </ul>
+      </div>
+
+      {/* Role-based Visibility Info */}
+      <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+        <h3 className="text-sm font-semibold text-purple-900 mb-2">👁️ Current View Access</h3>
+        <p className="text-sm text-purple-800">
+          {user.role === 'superadmin' && (
+            <>You are viewing <strong>ALL users</strong> in the system. You can manage roles for all users, including other Super Admins.</>
+          )}
+          {user.role === 'admin' && (
+            <>You are viewing <strong>Teachers and Students only</strong>. You cannot see or manage other Admins or Super Admins.</>
+          )}
+          {user.role === 'teacher' && (
+            <>You are viewing <strong>Students only</strong>. You cannot see or manage Teachers, Admins, or Super Admins.</>
+          )}
+          {user.role === 'student' && (
+            <>You do not have access to role management.</>
+          )}
+        </p>
       </div>
     </div>
   );

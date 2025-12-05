@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { isSuperAdmin } from '../utils/roleHelper';
+import { isSuperAdmin, isTeacherOrAdmin } from '../utils/roleHelper';
 
 function Sidebar() {
   const location = useLocation();
@@ -19,8 +19,8 @@ function Sidebar() {
     { path: '/reports', label: 'Reports', icon: '📈' },
   ];
 
-  // Add role management link for superadmins only
-  if (user && isSuperAdmin(user)) {
+  // Add role management link for superadmins, admins, and teachers
+  if (user && isTeacherOrAdmin(user)) {
     navLinks.push({ path: '/role-management', label: 'Role Management', icon: '👑' });
   }
 
