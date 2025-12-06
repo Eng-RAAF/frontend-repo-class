@@ -2,6 +2,17 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { studentsAPI, classesAPI, teachersAPI, enrollmentsAPI, analyticsAPI } from '../services/api';
 import Header from '../components/Header';
+import { useAuth } from '../context/AuthContext';
+import {
+  canViewStudents,
+  canViewClasses,
+  canViewTeachers,
+  canViewEnrollments,
+  canViewReports,
+  canCreateStudents,
+  canManageClasses,
+  canManageTeachers
+} from '../utils/roleHelper';
 
 // Simple Chart Component
 //waa update kii labaad
@@ -106,6 +117,7 @@ const StudentsByGradeChart = () => {
 };
 
 function Dashboard() {
+  const { user } = useAuth();
   const [stats, setStats] = useState({
     students: 0,
     classes: 0,
@@ -140,12 +152,15 @@ function Dashboard() {
     fetchStats();
   }, []);
 
-  const statCards = [
-    { label: 'Students', value: stats.students, icon: '👨‍🎓', color: 'bg-blue-500', link: '/students' },
-    { label: 'Classes', value: stats.classes, icon: '📚', color: 'bg-green-500', link: '/classes' },
-    { label: 'Teachers', value: stats.teachers, icon: '👨‍🏫', color: 'bg-purple-500', link: '/teachers' },
-    { label: 'Enrollments', value: stats.enrollments, icon: '📝', color: 'bg-orange-500', link: '/enrollments' },
+  // Filter stat cards based on user permissions
+  const allStatCards = [
+    { label: 'Students', value: stats.students, icon: '👨‍🎓', color: 'bg-blue-500', link: '/students', canAccess: canViewStudents(user) },
+    { label: 'Classes', value: stats.classes, icon: '📚', color: 'bg-green-500', link: '/classes', canAccess: canViewClasses(user) },
+    { label: 'Teachers', value: stats.teachers, icon: '👨‍🏫', color: 'bg-purple-500', link: '/teachers', canAccess: canViewTeachers(user) },
+    { label: 'Enrollments', value: stats.enrollments, icon: '📝', color: 'bg-orange-500', link: '/enrollments', canAccess: canViewEnrollments(user) },
   ];
+  
+  const statCards = allStatCards.filter(card => card.canAccess);
 
   if (loading) {
     return (
@@ -186,41 +201,54 @@ function Dashboard() {
         ))}
       </div>
 
-      {/* Analytics Charts */}
-      <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <EnrollmentsChart />
-        <StudentsByGradeChart />
-      </div>
-
-      <div className="mt-8 bg-white shadow rounded-lg p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Link
-            to="/students"
-            className="flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
-          >
-            Add Student
-          </Link>
-          <Link
-            to="/classes"
-            className="flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
-          >
-            Add Class
-          </Link>
-          <Link
-            to="/teachers"
-            className="flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
-          >
-            Add Teacher
-          </Link>
-          <Link
-            to="/reports"
-            className="flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
-          >
-            View Reports
-          </Link>
+      {/* Analytics Charts - Only show if user can view analytics */}
+      {canViewReports(user) && (
+        <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <EnrollmentsChart />
+          <StudentsByGradeChart />
         </div>
-      </div>
+      )}
+
+      {/* Quick Actions - Only show actions user can perform */}
+      {(canCreateStudents(user) || canManageClasses(user) || canManageTeachers(user) || canViewReports(user)) && (
+        <div className="mt-8 bg-white shadow rounded-lg p-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {canCreateStudents(user) && (
+              <Link
+                to="/students"
+                className="flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+              >
+                Add Student
+              </Link>
+            )}
+            {canManageClasses(user) && (
+              <Link
+                to="/classes"
+                className="flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+              >
+                Add Class
+              </Link>
+            )}
+            {canManageTeachers(user) && (
+              <Link
+                to="/teachers"
+                className="flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+              >
+                Add Teacher
+              </Link>
+            )}
+            {canViewReports(user) && (
+              <Link
+                to="/reports"
+                className="flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+              >
+                View Reports
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

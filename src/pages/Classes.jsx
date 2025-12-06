@@ -2,11 +2,14 @@ import { useState, useEffect } from 'react';
 import { classesAPI, teachersAPI } from '../services/api';
 import Modal from '../components/Modal';
 import Header from '../components/Header';
+import { useAuth } from '../context/AuthContext';
+import { canManageClasses } from '../utils/roleHelper';
 
 
 //wwa qaneeco
 //classesadda
 function Classes() {
+  const { user } = useAuth();
   const [classes, setClasses] = useState([]);
   const [teachers, setTeachers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -116,13 +119,15 @@ function Classes() {
         title="Classes"
         subtitle="Manage classes and course information"
         action={
-          <button
-            onClick={openModal}
-            className="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white px-6 py-2.5 rounded-lg hover:from-indigo-700 hover:to-indigo-800 shadow-md hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
-          >
-            <span>+</span>
-            <span>Add Class</span>
-          </button>
+          canManageClasses(user) && (
+            <button
+              onClick={openModal}
+              className="w-full sm:w-auto bg-gradient-to-r from-indigo-600 to-indigo-700 text-white px-4 sm:px-6 py-2.5 rounded-lg hover:from-indigo-700 hover:to-indigo-800 shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center space-x-2"
+            >
+              <span>+</span>
+              <span>Add Class</span>
+            </button>
+          )
         }
       />
 

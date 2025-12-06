@@ -116,6 +116,38 @@ export const canManageSchools = (user) => {
   return isAdmin(user);
 };
 
+export const canViewSchools = (user) => {
+  return isTeacherOrAdmin(user);
+};
+
+export const canViewBranches = (user) => {
+  return isTeacherOrAdmin(user);
+};
+
+export const canViewClasses = (user) => {
+  return isTeacherOrAdmin(user);
+};
+
+export const canViewEnrollments = (user) => {
+  return isTeacherOrAdmin(user);
+};
+
+export const canViewUsers = (user) => {
+  return isAdmin(user);
+};
+
+export const canViewMessages = (user) => {
+  return true; // All authenticated users can view messages
+};
+
+export const canViewReports = (user) => {
+  return isTeacherOrAdmin(user);
+};
+
+export const canViewDashboard = (user) => {
+  return true; // All authenticated users can view dashboard
+};
+
 export default {
   ROLES,
   hasRole,

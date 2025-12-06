@@ -2,8 +2,11 @@ import { useState, useEffect } from 'react';
 import { enrollmentsAPI, studentsAPI, classesAPI } from '../services/api';
 import Modal from '../components/Modal';
 import Header from '../components/Header';
+import { useAuth } from '../context/AuthContext';
+import { canManageEnrollments } from '../utils/roleHelper';
 
 function Enrollments() {
+  const { user } = useAuth();
   const [enrollments, setEnrollments] = useState([]);
   const [students, setStudents] = useState([]);
   const [classes, setClasses] = useState([]);
@@ -75,13 +78,15 @@ function Enrollments() {
         title="Enrollments"
         subtitle="Manage student enrollments in classes"
         action={
-          <button
-            onClick={openModal}
-            className="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white px-6 py-2.5 rounded-lg hover:from-indigo-700 hover:to-indigo-800 shadow-md hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
-          >
-            <span>+</span>
-            <span>Enroll Student</span>
-          </button>
+          canManageEnrollments(user) && (
+            <button
+              onClick={openModal}
+              className="w-full sm:w-auto bg-gradient-to-r from-indigo-600 to-indigo-700 text-white px-4 sm:px-6 py-2.5 rounded-lg hover:from-indigo-700 hover:to-indigo-800 shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center space-x-2"
+            >
+              <span>+</span>
+              <span>Enroll Student</span>
+            </button>
+          )
         }
       />
 
@@ -122,14 +127,16 @@ function Enrollments() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => handleDelete(enrollment.id)}
-                      className="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
-                    >
-                      Remove
-                    </button>
-                  </div>
+                  {canManageEnrollments(user) && (
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => handleDelete(enrollment.id)}
+                        className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  )}
                 </div>
               </li>
             ))

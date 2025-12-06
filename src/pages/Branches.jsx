@@ -2,8 +2,11 @@ import { useState, useEffect } from 'react';
 import { branchesAPI, schoolsAPI } from '../services/api';
 import Modal from '../components/Modal';
 import Header from '../components/Header';
+import { useAuth } from '../context/AuthContext';
+import { canManageSchools } from '../utils/roleHelper';
 
 function Branches() {
+  const { user } = useAuth();
   const [branches, setBranches] = useState([]);
   const [schools, setSchools] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -104,13 +107,15 @@ function Branches() {
         title="Branches"
         subtitle="Manage school branch information and records"
         action={
-          <button
-            onClick={openModal}
-            className="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white px-6 py-2.5 rounded-lg hover:from-indigo-700 hover:to-indigo-800 shadow-md hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
-          >
-            <span>+</span>
-            <span>Add Branch</span>
-          </button>
+          canManageSchools(user) && (
+            <button
+              onClick={openModal}
+              className="w-full sm:w-auto bg-gradient-to-r from-indigo-600 to-indigo-700 text-white px-4 sm:px-6 py-2.5 rounded-lg hover:from-indigo-700 hover:to-indigo-800 shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center space-x-2"
+            >
+              <span>+</span>
+              <span>Add Branch</span>
+            </button>
+          )
         }
       />
 

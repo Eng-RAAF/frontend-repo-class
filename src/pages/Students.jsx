@@ -2,8 +2,11 @@ import { useState, useEffect } from 'react';
 import { studentsAPI } from '../services/api';
 import Modal from '../components/Modal';
 import Header from '../components/Header';
+import { useAuth } from '../context/AuthContext';
+import { canCreateStudents, canEditStudents, canDeleteStudents } from '../utils/roleHelper';
 
 function Students() {
+  const { user } = useAuth();
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -80,13 +83,15 @@ function Students() {
         title="Students"
         subtitle="Manage student information and records"
         action={
-          <button
-            onClick={openModal}
-            className="w-full sm:w-auto bg-gradient-to-r from-indigo-600 to-indigo-700 text-white px-4 sm:px-6 py-2.5 rounded-lg hover:from-indigo-700 hover:to-indigo-800 shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center space-x-2"
-          >
-            <span>+</span>
-            <span>Add Student</span>
-          </button>
+          canCreateStudents(user) && (
+            <button
+              onClick={openModal}
+              className="w-full sm:w-auto bg-gradient-to-r from-indigo-600 to-indigo-700 text-white px-4 sm:px-6 py-2.5 rounded-lg hover:from-indigo-700 hover:to-indigo-800 shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center space-x-2"
+            >
+              <span>+</span>
+              <span>Add Student</span>
+            </button>
+          )
         }
       />
 
@@ -127,20 +132,26 @@ function Students() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex flex-col sm:flex-row gap-2 sm:space-x-2">
-                    <button
-                      onClick={() => handleEdit(student)}
-                      className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(student.id)}
-                      className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
-                    >
-                      Delete
-                    </button>
-                  </div>
+                  {(canEditStudents(user) || canDeleteStudents(user)) && (
+                    <div className="flex flex-col sm:flex-row gap-2 sm:space-x-2">
+                      {canEditStudents(user) && (
+                        <button
+                          onClick={() => handleEdit(student)}
+                          className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors"
+                        >
+                          Edit
+                        </button>
+                      )}
+                      {canDeleteStudents(user) && (
+                        <button
+                          onClick={() => handleDelete(student.id)}
+                          className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                        >
+                          Delete
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               </li>
             ))

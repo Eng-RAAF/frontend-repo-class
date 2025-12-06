@@ -1,7 +1,22 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { isSuperAdmin, isTeacherOrAdmin } from '../utils/roleHelper';
+import {
+  isSuperAdmin,
+  isAdmin,
+  isTeacherOrAdmin,
+  canViewStudents,
+  canViewTeachers,
+  canViewClasses,
+  canViewEnrollments,
+  canViewUsers,
+  canViewMessages,
+  canViewReports,
+  canViewSchools,
+  canViewBranches,
+  canViewDashboard,
+  canChangeRoles
+} from '../utils/roleHelper';
 
 function Sidebar() {
   const location = useLocation();
@@ -30,23 +45,27 @@ function Sidebar() {
     };
   }, [isMobileMenuOpen]);
 
-  const navLinks = [
-    { path: '/', label: 'Dashboard', icon: '📊' },
-    { path: '/schools', label: 'Schools', icon: '🏫' },
-    { path: '/branches', label: 'Branches', icon: '🏢' },
-    { path: '/students', label: 'Students', icon: '👨‍🎓' },
-    { path: '/classes', label: 'Classes', icon: '📚' },
-    { path: '/teachers', label: 'Teachers', icon: '👨‍🏫' },
-    { path: '/enrollments', label: 'Enrollments', icon: '📝' },
-    { path: '/users', label: 'Users', icon: '👤' },
-    { path: '/chat', label: 'Messages', icon: '💬' },
-    { path: '/reports', label: 'Reports', icon: '📈' },
-  ];
+  // Filter navigation links based on user permissions
+  const navLinks = useMemo(() => {
+    if (!user) return [];
 
-  // Add role management link for superadmins, admins, and teachers
-  if (user && isTeacherOrAdmin(user)) {
-    navLinks.push({ path: '/role-management', label: 'Role Management', icon: '👑' });
-  }
+    const allLinks = [
+      { path: '/', label: 'Dashboard', icon: '📊', canAccess: canViewDashboard(user) },
+      { path: '/schools', label: 'Schools', icon: '🏫', canAccess: canViewSchools(user) },
+      { path: '/branches', label: 'Branches', icon: '🏢', canAccess: canViewBranches(user) },
+      { path: '/students', label: 'Students', icon: '👨‍🎓', canAccess: canViewStudents(user) },
+      { path: '/classes', label: 'Classes', icon: '📚', canAccess: canViewClasses(user) },
+      { path: '/teachers', label: 'Teachers', icon: '👨‍🏫', canAccess: canViewTeachers(user) },
+      { path: '/enrollments', label: 'Enrollments', icon: '📝', canAccess: canViewEnrollments(user) },
+      { path: '/users', label: 'Users', icon: '👤', canAccess: canViewUsers(user) },
+      { path: '/chat', label: 'Messages', icon: '💬', canAccess: canViewMessages(user) },
+      { path: '/reports', label: 'Reports', icon: '📈', canAccess: canViewReports(user) },
+      { path: '/role-management', label: 'Role Management', icon: '👑', canAccess: canChangeRoles(user) },
+    ];
+
+    // Filter out links user doesn't have access to
+    return allLinks.filter(link => link.canAccess);
+  }, [user]);
 
   return (
     <>

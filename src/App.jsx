@@ -16,6 +16,8 @@ import Dashboard from './pages/Dashboard';
 import Schools from './pages/Schools';
 import Branches from './pages/Branches';
 import RoleManagement from './pages/RoleManagement';
+import RoleBasedRoute from './components/RoleBasedRoute';
+import { ROLES } from './utils/roleHelper';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -59,16 +61,16 @@ const AppLayout = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
             <Routes>
               <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-              <Route path="/schools" element={<ProtectedRoute><Schools /></ProtectedRoute>} />
-              <Route path="/branches" element={<ProtectedRoute><Branches /></ProtectedRoute>} />
-              <Route path="/students" element={<ProtectedRoute><Students /></ProtectedRoute>} />
-              <Route path="/classes" element={<ProtectedRoute><Classes /></ProtectedRoute>} />
-              <Route path="/teachers" element={<ProtectedRoute><Teachers /></ProtectedRoute>} />
-              <Route path="/enrollments" element={<ProtectedRoute><Enrollments /></ProtectedRoute>} />
-              <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
-              <Route path="/role-management" element={<ProtectedRoute><RoleManagement /></ProtectedRoute>} />
+              <Route path="/schools" element={<ProtectedRoute><RoleBasedRoute requiredRoles={[ROLES.ADMIN, ROLES.TEACHER]}><Schools /></RoleBasedRoute></ProtectedRoute>} />
+              <Route path="/branches" element={<ProtectedRoute><RoleBasedRoute requiredRoles={[ROLES.ADMIN, ROLES.TEACHER]}><Branches /></RoleBasedRoute></ProtectedRoute>} />
+              <Route path="/students" element={<ProtectedRoute><RoleBasedRoute requiredRoles={[ROLES.ADMIN, ROLES.TEACHER]}><Students /></RoleBasedRoute></ProtectedRoute>} />
+              <Route path="/classes" element={<ProtectedRoute><RoleBasedRoute requiredRoles={[ROLES.ADMIN, ROLES.TEACHER]}><Classes /></RoleBasedRoute></ProtectedRoute>} />
+              <Route path="/teachers" element={<ProtectedRoute><RoleBasedRoute requiredRoles={[ROLES.ADMIN, ROLES.TEACHER]}><Teachers /></RoleBasedRoute></ProtectedRoute>} />
+              <Route path="/enrollments" element={<ProtectedRoute><RoleBasedRoute requiredRoles={[ROLES.ADMIN, ROLES.TEACHER]}><Enrollments /></RoleBasedRoute></ProtectedRoute>} />
+              <Route path="/users" element={<ProtectedRoute><RoleBasedRoute requiredRoles={[ROLES.ADMIN]}><Users /></RoleBasedRoute></ProtectedRoute>} />
+              <Route path="/role-management" element={<ProtectedRoute><RoleBasedRoute requiredRoles={[ROLES.SUPERADMIN, ROLES.ADMIN, ROLES.TEACHER]}><RoleManagement /></RoleBasedRoute></ProtectedRoute>} />
               <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
-              <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+              <Route path="/reports" element={<ProtectedRoute><RoleBasedRoute requiredRoles={[ROLES.ADMIN, ROLES.TEACHER]}><Reports /></RoleBasedRoute></ProtectedRoute>} />
             </Routes>
           </div>
         </main>
