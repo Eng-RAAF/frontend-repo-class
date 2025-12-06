@@ -158,20 +158,22 @@ function Schools() {
                       )}
                     </div>
                   </div>
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => handleEdit(school)}
-                      className="px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(school.id)}
-                      className="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
-                    >
-                      Delete
-                    </button>
-                  </div>
+                  {canManageSchools(user) && (
+                    <div className="flex flex-col sm:flex-row gap-2 sm:space-x-2">
+                      <button
+                        onClick={() => handleEdit(school)}
+                        className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(school.id)}
+                        className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
                 </div>
               </li>
             ))

@@ -147,20 +147,22 @@ function Users() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => handleEdit(user)}
-                      className="px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(user.id)}
-                      className="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
-                    >
-                      Delete
-                    </button>
-                  </div>
+                  {canManageUsers(user) && (
+                    <div className="flex flex-col sm:flex-row gap-2 sm:space-x-2">
+                      <button
+                        onClick={() => handleEdit(user)}
+                        className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(user.id)}
+                        className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
                 </div>
               </li>
             ))
