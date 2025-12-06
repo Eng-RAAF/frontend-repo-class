@@ -15,6 +15,7 @@ import {
   canViewSchools,
   canViewBranches,
   canViewDashboard,
+  canViewLessonPlans,
   canChangeRoles
 } from '../utils/roleHelper';
 
@@ -56,6 +57,7 @@ function Sidebar() {
       { path: '/students', label: 'Students', icon: '👨‍🎓', canAccess: canViewStudents(user) },
       { path: '/classes', label: 'Classes', icon: '📚', canAccess: canViewClasses(user) },
       { path: '/teachers', label: 'Teachers', icon: '👨‍🏫', canAccess: canViewTeachers(user) },
+      { path: '/lesson-plans', label: 'Lesson Plans', icon: '📋', canAccess: canViewLessonPlans(user) },
       { path: '/enrollments', label: 'Enrollments', icon: '📝', canAccess: canViewEnrollments(user) },
       { path: '/users', label: 'Users', icon: '👤', canAccess: canViewUsers(user) },
       { path: '/chat', label: 'Messages', icon: '💬', canAccess: canViewMessages(user) },

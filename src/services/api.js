@@ -310,6 +310,22 @@ export const branchesAPI = {
   delete: (id) => apiRequest(`/branches/${id}`, { method: 'DELETE' }),
 };
 
+// Lesson Plans API
+export const lessonPlansAPI = {
+  getAll: (filters = {}) => {
+    const queryParams = new URLSearchParams();
+    if (filters.teacherId) queryParams.append('teacherId', filters.teacherId);
+    if (filters.classId) queryParams.append('classId', filters.classId);
+    if (filters.status) queryParams.append('status', filters.status);
+    const query = queryParams.toString();
+    return apiRequest(`/lesson-plans${query ? `?${query}` : ''}`);
+  },
+  getById: (id) => apiRequest(`/lesson-plans/${id}`),
+  create: (data) => apiRequest('/lesson-plans', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) => apiRequest(`/lesson-plans/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id) => apiRequest(`/lesson-plans/${id}`, { method: 'DELETE' }),
+};
+
 // Super Admin API
 export const superadminAPI = {
   getAllUsers: () => apiRequest('/superadmin/users/all'),

@@ -148,6 +148,14 @@ export const canViewDashboard = (user) => {
   return true; // All authenticated users can view dashboard
 };
 
+export const canViewLessonPlans = (user) => {
+  return hasAnyRole(user, [ROLES.SUPERADMIN, ROLES.ADMIN, ROLES.TEACHER]);
+};
+
+export const canManageLessonPlans = (user) => {
+  return hasAnyRole(user, [ROLES.SUPERADMIN, ROLES.ADMIN, ROLES.TEACHER]);
+};
+
 export default {
   ROLES,
   hasRole,
@@ -171,6 +179,8 @@ export default {
   canChangeRoles,
   canDeleteUsers,
   canViewAnalytics,
-  canManageSchools
+  canManageSchools,
+  canViewLessonPlans,
+  canManageLessonPlans
 };
 
