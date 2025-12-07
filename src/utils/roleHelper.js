@@ -21,6 +21,11 @@ export const isAdmin = (user) => {
   return user?.role === ROLES.ADMIN || user?.role === ROLES.SUPERADMIN;
 };
 
+// Check if user is teacher
+export const isTeacher = (user) => {
+  return user?.role === ROLES.TEACHER;
+};
+
 // Check if user is teacher or admin
 export const isTeacherOrAdmin = (user) => {
   return user?.role === ROLES.TEACHER || user?.role === ROLES.ADMIN || user?.role === ROLES.SUPERADMIN;
@@ -149,7 +154,7 @@ export const canViewDashboard = (user) => {
 };
 
 export const canViewLessonPlans = (user) => {
-  return hasAnyRole(user, [ROLES.SUPERADMIN, ROLES.ADMIN, ROLES.TEACHER]);
+  return hasAnyRole(user, [ROLES.SUPERADMIN, ROLES.ADMIN, ROLES.TEACHER, ROLES.STUDENT]);
 };
 
 export const canManageLessonPlans = (user) => {
@@ -161,6 +166,7 @@ export default {
   hasRole,
   isSuperAdmin,
   isAdmin,
+  isTeacher,
   isTeacherOrAdmin,
   isStudent,
   hasAnyRole,

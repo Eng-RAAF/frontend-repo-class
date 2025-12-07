@@ -3,7 +3,7 @@ import { lessonPlansAPI, teachersAPI, classesAPI } from '../services/api';
 import Modal from '../components/Modal';
 import Header from '../components/Header';
 import { useAuth } from '../context/AuthContext';
-import { isTeacher, isAdmin, isSuperAdmin } from '../utils/roleHelper';
+import { isTeacher, isAdmin, isSuperAdmin, isStudent } from '../utils/roleHelper';
 
 function LessonPlans() {
   const { user } = useAuth();
@@ -138,6 +138,7 @@ function LessonPlans() {
   };
 
   const canManage = isAdmin(user) || isSuperAdmin(user) || isTeacher(user);
+  const canOnlyView = isStudent(user);
 
   if (loading) {
     return (
@@ -153,7 +154,7 @@ function LessonPlans() {
         title="Lesson Plans"
         subtitle="Create and manage lesson plans for your classes"
         action={
-          canManage && (
+          canManage && !canOnlyView && (
             <button
               onClick={openModal}
               className="w-full sm:w-auto bg-gradient-to-r from-indigo-600 to-indigo-700 text-white px-4 sm:px-6 py-2.5 rounded-lg hover:from-indigo-700 hover:to-indigo-800 shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center space-x-2"
@@ -228,7 +229,7 @@ function LessonPlans() {
                 <p className="text-sm text-gray-700 mb-4 line-clamp-2">{plan.description}</p>
               )}
 
-              {canManage && (
+              {canManage && !canOnlyView && (
                 <div className="flex space-x-2 pt-4 border-t">
                   <button
                     onClick={() => handleEdit(plan)}
@@ -242,6 +243,11 @@ function LessonPlans() {
                   >
                     Delete
                   </button>
+                </div>
+              )}
+              {canOnlyView && (
+                <div className="pt-4 border-t">
+                  <p className="text-xs text-gray-500 text-center">View only - Students cannot edit lesson plans</p>
                 </div>
               )}
             </div>

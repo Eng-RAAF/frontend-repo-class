@@ -67,7 +67,7 @@ const AppLayout = () => {
               <Route path="/students" element={<ProtectedRoute><RoleBasedRoute requiredRoles={[ROLES.ADMIN, ROLES.TEACHER]}><Students /></RoleBasedRoute></ProtectedRoute>} />
               <Route path="/classes" element={<ProtectedRoute><RoleBasedRoute requiredRoles={[ROLES.ADMIN, ROLES.TEACHER]}><Classes /></RoleBasedRoute></ProtectedRoute>} />
               <Route path="/teachers" element={<ProtectedRoute><RoleBasedRoute requiredRoles={[ROLES.ADMIN, ROLES.TEACHER]}><Teachers /></RoleBasedRoute></ProtectedRoute>} />
-              <Route path="/lesson-plans" element={<ProtectedRoute><RoleBasedRoute requiredRoles={[ROLES.SUPERADMIN, ROLES.ADMIN, ROLES.TEACHER]}><LessonPlans /></RoleBasedRoute></ProtectedRoute>} />
+              <Route path="/lesson-plans" element={<ProtectedRoute><RoleBasedRoute requiredRoles={[ROLES.SUPERADMIN, ROLES.ADMIN, ROLES.TEACHER, ROLES.STUDENT]}><LessonPlans /></RoleBasedRoute></ProtectedRoute>} />
               <Route path="/enrollments" element={<ProtectedRoute><RoleBasedRoute requiredRoles={[ROLES.ADMIN, ROLES.TEACHER]}><Enrollments /></RoleBasedRoute></ProtectedRoute>} />
               <Route path="/users" element={<ProtectedRoute><RoleBasedRoute requiredRoles={[ROLES.ADMIN]}><Users /></RoleBasedRoute></ProtectedRoute>} />
               <Route path="/role-management" element={<ProtectedRoute><RoleBasedRoute requiredRoles={[ROLES.SUPERADMIN, ROLES.ADMIN, ROLES.TEACHER]}><RoleManagement /></RoleBasedRoute></ProtectedRoute>} />
